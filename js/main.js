@@ -41,12 +41,15 @@ const searchInputEl = searchWrapEl.querySelector('input')
 const searchDelayEls = [...searchWrapEl.querySelectorAll('li')];
 
 searchStarterEl.addEventListener('click', showSearch)
-searchCloserEl.addEventListener('click', hideSearch)
+searchCloserEl.addEventListener('click', function(event) {
+    event.stopPropagation() // textfield 가 클릭되는 현상 막기
+    hideSearch()
+})
 searchshadowEl.addEventListener('click', hideSearch)
 
 function showSearch() {
     headerEl.classList.add('searching')
-    document.documentElement.classList.add('fixed')
+    stopScroll();
 
     headerMenuEls.reverse().forEach((el, index) => {
         el.style.transitionDelay = `${index * .4 / headerMenuEls.length}s`;
@@ -62,7 +65,7 @@ function showSearch() {
 }
 function hideSearch() {
     headerEl.classList.remove('searching')
-    document.documentElement.classList.remove('fixed')
+    playScroll();
 
     headerMenuEls.reverse().forEach((el, index) => {
         el.style.transitionDelay = `${index * .4 / headerMenuEls.length}s`;
@@ -75,6 +78,50 @@ function hideSearch() {
 
     searchInputEl.value = '';
 }
+
+
+function playScroll(){
+    document.documentElement.classList.remove('fixed')
+}
+
+function stopScroll(){
+    document.documentElement.classList.add('fixed')
+}
+
+// 헤더 메뉴 토글
+const menuStarterEl = document.querySelector('header .menu-starter')
+menuStarterEl.addEventListener('click', function(){
+    if(headerEl.classList.contains('menuing')){
+        headerEl.classList.remove('menuing')
+        searchInputEl.value = '';
+        playScroll();
+    } else {
+        headerEl.classList.add('menuing');
+        stopScroll();
+    }
+})
+
+// 헤더 검색
+const searchTextFieldEl = document.querySelector('header .textfield')
+const searchCancelEl =document.querySelector('header .search-canceler')
+
+searchTextFieldEl.addEventListener('click', function () {
+    headerEl.classList.add('searching--mobile')
+    searchInputEl.focus();
+})
+
+searchCancelEl.addEventListener('click', function() {
+    headerEl.classList.remove('searching--mobile')
+})
+
+window.addEventListener('resize', function() {
+    if(window.innerWidth <= 740){       // 모바일 모드
+        headerEl.classList.remove('searching')
+    }
+    else {
+        headerEl.classList.remove('searching--mobile')
+    }
+})
 
 
 // 요소의 가시성 관찰
